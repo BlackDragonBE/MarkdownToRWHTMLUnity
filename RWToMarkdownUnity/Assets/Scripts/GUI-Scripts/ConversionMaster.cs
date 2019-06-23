@@ -6,14 +6,11 @@ using System.IO;
 using DragonMarkdown.ContentScan;
 using DragonMarkdown.Utility;
 using TMPro;
-using System.Threading;
 using CielaSpike;
 using System;
 using System.Collections.Generic;
-using System.Net;
 using UnityEngine.UI;
 using UnityEngine.Networking;
-using System.Runtime.InteropServices;
 
 public class ConversionMaster : MonoBehaviour
 {
@@ -32,9 +29,13 @@ public class ConversionMaster : MonoBehaviour
     private bool _useContentScanner;
     private bool _saveOutputToHtml;
 
+    private CustomCertificateHandler certHandler;
+    private bool _lastFileFoundOnServer = false;
+
     // Use this for initialization
     private void Start()
     {
+        certHandler = new CustomCertificateHandler();
     }
 
 #if UNITY_WEBGL && !UNITY_EDITOR
@@ -204,7 +205,9 @@ public class ConversionMaster : MonoBehaviour
             //WriteToLinkImageText("Checking " + potentialUrl);
             StatusText.text = "Attempting link " + (i + 1) + " / " + fileNames.Count;
 
-            if (URLExists(potentialUrl))
+            yield return URLExists(potentialUrl);
+
+            if (_lastFileFoundOnServer)
             {
                 WriteToLinkImageText(potentialUrl + " OK!");
                 imageUrls.Add(potentialUrl);
@@ -245,23 +248,23 @@ public class ConversionMaster : MonoBehaviour
         LinkImageText.text += text + "\n";
     }
 
-    public bool URLExists(string url)
+    public IEnumerator URLExists(string url)
     {
-        bool result = true;
+        UnityWebRequest www = UnityWebRequest.Head(url);
+        www.certificateHandler = certHandler;
 
-        WebRequest webRequest = WebRequest.Create(url);
-        webRequest.Timeout = 3000; // miliseconds
-        webRequest.Method = "HEAD";
+        yield return www.SendWebRequest();
 
-        try
+        if (www.isNetworkError || www.isHttpError || www.responseCode > 400)
         {
-            webRequest.GetResponse();
+            WriteToLinkImageText("Error: " + www.error);
+            _lastFileFoundOnServer = false;
         }
-        catch
+        else
         {
-            result = false;
+            _lastFileFoundOnServer = true;
         }
 
-        return result;
+        www.Dispose();
     }
 }
