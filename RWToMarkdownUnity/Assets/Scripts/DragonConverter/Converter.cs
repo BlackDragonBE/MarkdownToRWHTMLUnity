@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Text;
 using DragonMarkdown.Utility;
 using HtmlAgilityPack;
 using Markdig;
@@ -39,32 +40,25 @@ namespace DragonMarkdown.DragonConverter
 
             AddExtraAttributesToLinks(ref output);
 
-            // Make new lines consistent across platforms
-            output = output.Replace("\r\n", "|||");
-            output = output.Replace("|||", "\n");
-
-            // Text
-            output = output.Replace("<p>", "\n");
-            output = output.Replace("<br>", "\n");
-            output = output.Replace("</p>", "");
-            output = output.Replace("<h1", "\n<h1");
-            output = output.Replace("<h2", "\n<h2");
-            output = output.Replace("<h3", "\n<h3");
-            output = output.Replace("<h4", "\n<h4");
-            output = output.Replace("<em>", "<i>");
-            output = output.Replace("</em>", "</i>");
-            output = output.Replace("<strong>", "<em>");
-            output = output.Replace("</strong>", "</em>");
-
-            // List
-            //output = output.Replace("<ul>", "\n<ul>");
-            //output = output.Replace("<ol>", "\n<ol>");
-
-            //// Note
-            output = output.Replace("</blockquote>", "</div>");
-            output = output.Replace("<blockquote>\n", "\n<blockquote>");
-            output = output.Replace("<blockquote>\n<em>Note", "<div class=\"note\">\n<em>Note");
-            output = output.Replace("<blockquote>", "<div>");
+            output = new StringBuilder(output)
+            .Replace("\r\n", "|||")
+            .Replace("|||", "\n")
+            .Replace("<p>", "\n")
+            .Replace("<br>", "\n")
+            .Replace("</p>", "")
+            .Replace("<h1", "\n<h1")
+            .Replace("<h2", "\n<h2")
+            .Replace("<h3", "\n<h3")
+            .Replace("<h4", "\n<h4")
+            .Replace("<em>", "<i>")
+            .Replace("</em>", "</i>")
+            .Replace("<strong>", "<em>")
+            .Replace("</strong>", "</em>")
+            .Replace("</blockquote>", "</div>")
+            .Replace("<blockquote>\n", "\n<blockquote>")
+            .Replace("<blockquote>\n<em>Note", "<div class=\"note\">\n<em>Note")
+            .Replace("<blockquote>", "<div>")
+            .ToString();
 
             // Spoiler
             ConvertSpoilers(ref output);
@@ -95,7 +89,6 @@ namespace DragonMarkdown.DragonConverter
                 {
                     sw.Write(html);
                     sw.Flush();
-                    sw.Close();
                 }
             }
         }
@@ -182,8 +175,9 @@ namespace DragonMarkdown.DragonConverter
                 return;
             }
 
-            foreach (HtmlNode imgNode in imgNodes)
+            for (int i = 0; i < imgNodes.Count; i++)
             {
+                HtmlNode imgNode = imgNodes[i];
                 if (imgNode.Attributes["alt"] != null && imgNode.Attributes["alt"].Value != "")
                 {
                     HtmlNode parent = imgNode.ParentNode;
@@ -214,16 +208,16 @@ namespace DragonMarkdown.DragonConverter
                 return;
             }
 
-            foreach (HtmlNode divNode in divNodes)
+            for (int i = 0; i < divNodes.Count; i++)
             {
-                if (divNode.InnerHtml.StartsWith("\n<em>Spoiler:"))
+                if (divNodes[i].InnerHtml.StartsWith("\n<em>Spoiler:"))
                 {
-                    string spoilerTitle = divNode.ChildNodes[1].InnerText.Split(':')[1].Trim();
-                    divNode.RemoveChild(divNode.ChildNodes[1]);
-                    divNode.Attributes.Add("title", spoilerTitle);
-                    divNode.Name = "spoiler";
+                    string spoilerTitle = divNodes[i].ChildNodes[1].InnerText.Split(':')[1].Trim();
+                    divNodes[i].RemoveChild(divNodes[i].ChildNodes[1]);
+                    divNodes[i].Attributes.Add("title", spoilerTitle);
+                    divNodes[i].Name = "spoiler";
 
-                    ReplaceOuterHtmlWithSquareBrackets(divNode);
+                    ReplaceOuterHtmlWithSquareBrackets(divNodes[i]);
                 }
             }
 
@@ -243,16 +237,16 @@ namespace DragonMarkdown.DragonConverter
                 return links;
             }
 
-            foreach (HtmlNode node in imgNodes)
+            for (int i = 0; i < imgNodes.Count; i++)
             {
                 // Skip if web link
-                if (node.GetAttributeValue("src", "").StartsWith("http") ||
-                    node.GetAttributeValue("src", "").StartsWith("www"))
+                if (imgNodes[i].GetAttributeValue("src", "").StartsWith("http") ||
+                    imgNodes[i].GetAttributeValue("src", "").StartsWith("www"))
                 {
                     continue;
                 }
 
-                string localPath = node.GetAttributeValue("src", null);
+                string localPath = imgNodes[i].GetAttributeValue("src", null);
                 string fullPath = rootFolder + "/" + localPath;
 
                 // Check if file exists
@@ -297,10 +291,11 @@ namespace DragonMarkdown.DragonConverter
             string inner = node.InnerHtml;
             string newOuter = node.OuterHtml;
 
-            newOuter = newOuter.Replace(inner, "");
-            newOuter = newOuter.Replace("<", "[");
-            newOuter = newOuter.Replace(">", "]");
-            //newOuter = newOuter.Replace("INNER", inner);
+            newOuter = new StringBuilder(newOuter)
+            .Replace(inner, "")
+            .Replace("<", "[")
+            .Replace(">", "]")
+            .ToString();
 
             var newNode = HtmlNode.CreateNode(newOuter);
             newNode.InnerHtml = newNode.InnerHtml.Replace("][", "]" + inner.Trim() + "[");

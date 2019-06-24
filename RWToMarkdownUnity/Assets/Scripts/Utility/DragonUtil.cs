@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace DragonMarkdown.Utility
 {
@@ -258,6 +259,18 @@ namespace DragonMarkdown.Utility
         public static string GetFullFilePath(string localFilePath, string rootPath)
         {
             return rootPath + "/" + localFilePath;
+        }
+
+        public static void CopyToClipboard(this string s)
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            WebNativeDialog.SetUpOverlayDialog("Select all text below and copy:", s, "Close");
+#else
+            TextEditor te = new TextEditor();
+            te.text = s;
+            te.SelectAll();
+            te.Copy();
+#endif
         }
     }
 }

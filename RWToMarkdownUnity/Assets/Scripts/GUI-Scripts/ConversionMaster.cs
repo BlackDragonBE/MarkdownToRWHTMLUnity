@@ -11,6 +11,8 @@ using System;
 using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine.Networking;
+using System.Runtime.InteropServices;
+using UnityEngine.EventSystems;
 
 public class ConversionMaster : MonoBehaviour
 {
@@ -20,11 +22,20 @@ public class ConversionMaster : MonoBehaviour
     public Slider StatusSlider;
     public TextMeshProUGUI StatusText;
 
+    public TextMeshProUGUI MarkdownPage;
+    public TextMeshProUGUI HtmlPage;
+
     public GameObject LoadingCanvas;
+    public GameObject WebGLUploadCanvas;
     public GameObject ImageLinkerCancelButton;
+
+    public int MaximumCharactersPerPage = 1000;
 
     private string _markdownPath;
     private string _htmlPath;
+
+    private string _markdown;
+    private string _html;
 
     private bool _useContentScanner;
     private bool _saveOutputToHtml;
@@ -32,12 +43,18 @@ public class ConversionMaster : MonoBehaviour
     private CustomCertificateHandler certHandler;
     private bool _lastFileFoundOnServer = false;
 
+    private int _markdownPage;
+    private int _htmlPage;
+
     // Use this for initialization
-    private void Start()
+    private void Awake()
     {
         certHandler = new CustomCertificateHandler();
+        MarkdownPage.text = "";
+        HtmlPage.text = "";
     }
 
+    // VERY EXPERIMENTAL WEBGL STUFF
 #if UNITY_WEBGL && !UNITY_EDITOR
     //
     // WebGL
@@ -45,32 +62,45 @@ public class ConversionMaster : MonoBehaviour
     [DllImport("__Internal")]
     private static extern void UploadFile(string gameObjectName, string methodName, string filter, bool multiple);
 
-    public void OnPointerDown(PointerEventData eventData)
-    {
-        UploadFile(gameObject.name, "OnFileUpload", ".md", false);
-    }
-
     // Called from browser
     public void OnFileUpload(string url)
     {
         StartCoroutine(OutputRoutine(url));
     }
-#else
-    //
-    // Standalone platforms & editor
-    //
-
 #endif
 
     private IEnumerator OutputRoutine(string url)
     {
-        var loader = new WWW(url);
-        yield return loader;
-        MarkdownText.text = loader.text;
+        ShowLoadingScreen();
+
+        using (UnityWebRequest www = UnityWebRequest.Get(url))
+        {
+            yield return www.SendWebRequest();
+
+            if (www.isNetworkError || www.isHttpError)
+            {
+                MarkdownText.text = www.error;
+            }
+            else
+            {
+                _markdown = www.downloadHandler.text;
+                ConverterOptions options = GetConverterOptions();
+                _html = Converter.ConvertMarkdownStringToHtml(www.downloadHandler.text, options);
+                LoadMarkdownPage(0);
+                LoadHtmlPage(0);
+            }
+        }
+
+        HideLoadingScreen();
     }
 
     public void DoConversion()
     {
+#if UNITY_WEBGL && !UNITY_EDITOR
+        WebGLUploadCanvas.SetActive(true);
+        UploadFile(gameObject.name, "OnFileUpload", ".md", false);
+#else
+
         string path;
 
         // CreateAndSaveSettings();
@@ -82,6 +112,7 @@ public class ConversionMaster : MonoBehaviour
 
         Task task;
         this.StartCoroutineAsync(Convert(path), out task);
+#endif
     }
 
     private IEnumerator Convert(string path)
@@ -97,17 +128,17 @@ public class ConversionMaster : MonoBehaviour
 
                 using (StreamReader sr = new StreamReader(path))
                 {
-                    string md = sr.ReadToEnd().Replace("\t", "  "); ;
-                    string html = Converter.ConvertMarkdownStringToHtml(md, options);
-                    yield return Ninja.JumpToUnity;
+                    _markdown = sr.ReadToEnd().Replace("\t", "  ");
+                    _html = Converter.ConvertMarkdownStringToHtml(_markdown, options);
 
-                    MarkdownText.text = md;
-                    HtmlText.text = html;
+                    yield return Ninja.JumpToUnity;
+                    LoadMarkdownPage(0);
+                    LoadHtmlPage(0);
                     yield return Ninja.JumpBack;
 
                     if (_useContentScanner)
                     {
-                        print(ContentScanner.ParseScanrResults(ContentScanner.ScanMarkdown(MarkdownText.text, _markdownPath)));
+                        print(ContentScanner.ParseScanrResults(ContentScanner.ScanMarkdown(_markdown, _markdownPath)));
                     }
 
                     if (_saveOutputToHtml)
@@ -152,14 +183,11 @@ public class ConversionMaster : MonoBehaviour
 
     public void StartLinking()
     {
-        Task task;
-        this.StartCoroutineAsync(LinkImages(), out task);
+        StartCoroutine(LinkImages());
     }
 
     public IEnumerator LinkImages()
     {
-        yield return Ninja.JumpToUnity;
-
         ImageLinkerCancelButton.SetActive(false);
 
         if (!File.Exists(_markdownPath))
@@ -170,8 +198,7 @@ public class ConversionMaster : MonoBehaviour
         }
 
         string imageUrlPrefix = "https://koenig-media.raywenderlich.com/uploads/" + DateTime.Now.Year + "/" + DateTime.Now.Month.ToString("00") + "/";
-        print(imageUrlPrefix);
-        var links = Converter.FindAllImageLinksInHtml(HtmlText.text, Path.GetDirectoryName(_markdownPath));
+        var links = Converter.FindAllImageLinksInHtml(_html, Path.GetDirectoryName(_markdownPath));
 
         if (links.Count == 0)
         {
@@ -180,7 +207,6 @@ public class ConversionMaster : MonoBehaviour
             yield break;
         }
 
-        List<string> fullImagePaths = new List<string>();
         List<string> localImagePaths = new List<string>();
         List<string> fileNames = new List<string>();
         List<string> imageUrls = new List<string>();
@@ -188,13 +214,12 @@ public class ConversionMaster : MonoBehaviour
 
         foreach (ImageLinkData link in links)
         {
-            fullImagePaths.Add(link.FullImagePath);
             localImagePaths.Add(link.LocalImagePath);
             fileNames.Add(Path.GetFileName(link.FullImagePath));
         }
 
         LinkImageText.text = "";
-        WriteToLinkImageText(fullImagePaths.Count + " image paths found.");
+        WriteToLinkImageText(localImagePaths.Count + " image paths found.");
         WriteToLinkImageText("Started linking process...");
 
         StatusSlider.maxValue = fileNames.Count;
@@ -205,7 +230,7 @@ public class ConversionMaster : MonoBehaviour
             //WriteToLinkImageText("Checking " + potentialUrl);
             StatusText.text = "Attempting link " + (i + 1) + " / " + fileNames.Count;
 
-            yield return URLExists(potentialUrl);
+            yield return UrlExists(potentialUrl);
 
             if (_lastFileFoundOnServer)
             {
@@ -224,11 +249,12 @@ public class ConversionMaster : MonoBehaviour
             yield return new WaitForEndOfFrame();
         }
 
-        MarkdownAndHtml markdownAndHtml = Converter.ReplaceLocalImageLinksWithUrls(_markdownPath, MarkdownText.text,
-    null, HtmlText.text, true, localImagePaths, imageUrls);
+        MarkdownAndHtml markdownAndHtml = Converter.ReplaceLocalImageLinksWithUrls(_markdownPath, _markdown,
+    null, _html, true, localImagePaths, imageUrls);
 
-        MarkdownText.text = markdownAndHtml.Markdown;
-        HtmlText.text = markdownAndHtml.Html;
+        //MarkdownText.text = markdownAndHtml.Markdown;
+        //HtmlText.text = markdownAndHtml.Html;
+        markdownAndHtml.Html.CopyToClipboard();
 
         if (failedLinks == 0)
         {
@@ -240,7 +266,7 @@ public class ConversionMaster : MonoBehaviour
         }
 
         ImageLinkerCancelButton.SetActive(true);
-        WriteToLinkImageText("Finished operation. Please copy the HTML from the right panel and paste it into new post.");
+        WriteToLinkImageText("Finished operation. HTML has been copied to your clipboard.");
     }
 
     private void WriteToLinkImageText(string text)
@@ -248,7 +274,7 @@ public class ConversionMaster : MonoBehaviour
         LinkImageText.text += text + "\n";
     }
 
-    public IEnumerator URLExists(string url)
+    public IEnumerator UrlExists(string url)
     {
         UnityWebRequest www = UnityWebRequest.Head(url);
         www.certificateHandler = certHandler;
@@ -266,5 +292,109 @@ public class ConversionMaster : MonoBehaviour
         }
 
         www.Dispose();
+    }
+
+    public void ShowNextMarkdownPage()
+    {
+        if (_markdownPage > _markdown.Length / MaximumCharactersPerPage)
+        {
+            return;
+        }
+
+        _markdownPage++;
+        LoadMarkdownPage(_markdownPage);
+    }
+
+    public void ShowPreviousMarkdownPage()
+    {
+        if (_markdownPage < 1)
+        {
+            return;
+        }
+
+        _markdownPage--;
+        LoadMarkdownPage(_markdownPage);
+    }
+
+    private void LoadMarkdownPage(int page)
+    {
+        int firstCharIndex = page * MaximumCharactersPerPage;
+        int lastCharIndex = firstCharIndex + MaximumCharactersPerPage;
+
+        bool firstCharOK = _markdown.Length > firstCharIndex;
+        bool lastCharOK = _markdown.Length > lastCharIndex;
+
+        if (!firstCharOK)
+        {
+            return;
+        }
+
+        MarkdownPage.text = "Page " + (page + 1) + " / " + (_markdown.Length / MaximumCharactersPerPage + 1);
+
+        if (!lastCharOK) // Not enough characters left to show just a part, show all of it
+        {
+            MarkdownText.text = _markdown.Substring(firstCharIndex);
+        }
+        else // Everything ok, show subset
+        {
+            MarkdownText.text = _markdown.Substring(firstCharIndex, MaximumCharactersPerPage);
+        }
+    }
+
+    public void ShowNextHtmlPage()
+    {
+        if (_htmlPage > _html.Length / MaximumCharactersPerPage)
+        {
+            return;
+        }
+
+        _htmlPage++;
+        LoadHtmlPage(_htmlPage);
+    }
+
+    public void ShowPreviousHtmlPage()
+    {
+        if (_htmlPage < 1)
+        {
+            return;
+        }
+
+        _htmlPage--;
+        LoadHtmlPage(_htmlPage);
+    }
+
+    private void LoadHtmlPage(int page)
+    {
+        int firstCharIndex = page * MaximumCharactersPerPage;
+        int lastCharIndex = firstCharIndex + MaximumCharactersPerPage;
+
+        bool firstCharOK = _html.Length > firstCharIndex;
+        bool lastCharOK = _html.Length > lastCharIndex;
+
+        if (!firstCharOK)
+        {
+            return;
+        }
+
+        HtmlPage.text = "Page " + (page + 1) + " / " + (_html.Length / MaximumCharactersPerPage + 1);
+
+        if (!lastCharOK) // Not enough characters left to show just a part, show all of it
+        {
+            HtmlText.text = _html.Substring(firstCharIndex);
+        }
+        else // Everything ok, show subset
+        {
+            HtmlText.text = _html.Substring(firstCharIndex, MaximumCharactersPerPage);
+        }
+    }
+
+    public void CopyMarkdownToClipboard()
+    {
+        _markdown.CopyToClipboard();
+    }
+
+    public void CopyHtmlToClipboard()
+    {
+        _html.CopyToClipboard();
     }
 }
