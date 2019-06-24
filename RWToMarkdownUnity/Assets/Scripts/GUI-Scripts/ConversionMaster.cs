@@ -98,7 +98,7 @@ public class ConversionMaster : MonoBehaviour
     {
 #if UNITY_WEBGL && !UNITY_EDITOR
         WebGLUploadCanvas.SetActive(true);
-        UploadFile(gameObject.name, "OnFileUpload", ".md", false);
+        UploadFile(gameObject.name, "OnFileUpload", ".md, .markdown, .txt, .mdown, .mkdn, .mkd, .mdwn, .mdtext, .mdtxt, .text, .rmd", false);
 #else
 
         string path;
