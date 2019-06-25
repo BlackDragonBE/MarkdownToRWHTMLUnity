@@ -224,7 +224,7 @@ namespace DragonMarkdown.DragonConverter
             html = doc.DocumentNode.OuterHtml;
         }
 
-        public static List<ImageLinkData> FindAllImageLinksInHtml(string html, string rootFolder)
+        public static List<ImageLinkData> FindAllImageLinksInHtml(string html)
         {
             List<ImageLinkData> links = new List<ImageLinkData>();
 
@@ -247,19 +247,13 @@ namespace DragonMarkdown.DragonConverter
                 }
 
                 string localPath = imgNodes[i].GetAttributeValue("src", null);
-                string fullPath = rootFolder + "/" + localPath;
 
-                // Check if file exists
-                if (File.Exists(fullPath))
+                ImageLinkData imageData = new ImageLinkData
                 {
-                    ImageLinkData imageData = new ImageLinkData
-                    {
-                        LocalImagePath = localPath,
-                        FullImagePath = fullPath
-                    };
+                    LocalImagePath = localPath,
+                };
 
-                    links.Add(imageData);
-                }
+                links.Add(imageData);
             }
 
             return links;
@@ -305,7 +299,6 @@ namespace DragonMarkdown.DragonConverter
 
     public struct ImageLinkData
     {
-        public string FullImagePath;
         public string LocalImagePath;
     }
 }

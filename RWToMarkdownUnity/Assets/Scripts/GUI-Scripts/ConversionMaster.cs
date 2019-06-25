@@ -6,7 +6,6 @@ using System.IO;
 using DragonMarkdown.ContentScan;
 using DragonMarkdown.Utility;
 using TMPro;
-using CielaSpike;
 using System;
 using System.Collections.Generic;
 using UnityEngine.UI;
@@ -110,12 +109,11 @@ public class ConversionMaster : MonoBehaviour
 
         ShowLoadingScreen();
 
-        Task task;
-        this.StartCoroutineAsync(Convert(path), out task);
+        Convert(path);
 #endif
     }
 
-    private IEnumerator Convert(string path)
+    private void Convert(string path)
     {
         ConverterOptions options = GetConverterOptions();
 
@@ -131,10 +129,8 @@ public class ConversionMaster : MonoBehaviour
                     _markdown = sr.ReadToEnd().Replace("\t", "  ");
                     _html = Converter.ConvertMarkdownStringToHtml(_markdown, options);
 
-                    yield return Ninja.JumpToUnity;
                     LoadMarkdownPage(0);
                     LoadHtmlPage(0);
-                    yield return Ninja.JumpBack;
 
                     if (_useContentScanner)
                     {
@@ -147,8 +143,6 @@ public class ConversionMaster : MonoBehaviour
                         Converter.ConvertMarkdownFileToHtmlFile(path, _htmlPath, options);
                     }
 
-                    yield return Ninja.JumpToUnity;
-
                     HideLoadingScreen();
                     StatusText.text = "Converted markdown! Copy HTML on right side or start Image Linker (experimental).";
                 }
@@ -156,7 +150,6 @@ public class ConversionMaster : MonoBehaviour
         }
         else
         {
-            yield return Ninja.JumpToUnity;
             HideLoadingScreen();
             StatusText.text = "No valid markdown chosen!";
         }
@@ -190,15 +183,15 @@ public class ConversionMaster : MonoBehaviour
     {
         ImageLinkerCancelButton.SetActive(false);
 
-        if (!File.Exists(_markdownPath))
+        if (_markdown == "")
         {
-            WriteToLinkImageText("Markdown file not found! Aborting.");
+            WriteToLinkImageText("No markdown loaded! Aborting.");
             ImageLinkerCancelButton.SetActive(true);
             yield break;
         }
 
         string imageUrlPrefix = "https://koenig-media.raywenderlich.com/uploads/" + DateTime.Now.Year + "/" + DateTime.Now.Month.ToString("00") + "/";
-        var links = Converter.FindAllImageLinksInHtml(_html, Path.GetDirectoryName(_markdownPath));
+        var links = Converter.FindAllImageLinksInHtml(_html);
 
         if (links.Count == 0)
         {
@@ -215,7 +208,7 @@ public class ConversionMaster : MonoBehaviour
         foreach (ImageLinkData link in links)
         {
             localImagePaths.Add(link.LocalImagePath);
-            fileNames.Add(Path.GetFileName(link.FullImagePath));
+            fileNames.Add(Path.GetFileName(link.LocalImagePath));
         }
 
         LinkImageText.text = "";
@@ -230,7 +223,11 @@ public class ConversionMaster : MonoBehaviour
             //WriteToLinkImageText("Checking " + potentialUrl);
             StatusText.text = "Attempting link " + (i + 1) + " / " + fileNames.Count;
 
+#if UNITY_WEBGL && !UNITY_EDITOR
+            yield return UrlExistsWithPHP(potentialUrl); // WebGL version has to use the PHP method
+#else
             yield return UrlExists(potentialUrl);
+#endif
 
             if (_lastFileFoundOnServer)
             {
@@ -252,9 +249,10 @@ public class ConversionMaster : MonoBehaviour
         MarkdownAndHtml markdownAndHtml = Converter.ReplaceLocalImageLinksWithUrls(_markdownPath, _markdown,
     null, _html, true, localImagePaths, imageUrls);
 
-        //MarkdownText.text = markdownAndHtml.Markdown;
-        //HtmlText.text = markdownAndHtml.Html;
-        markdownAndHtml.Html.CopyToClipboard();
+        _markdown = markdownAndHtml.Markdown;
+        _html = markdownAndHtml.Html;
+        LoadMarkdownPage(0);
+        LoadHtmlPage(0);
 
         if (failedLinks == 0)
         {
@@ -289,6 +287,27 @@ public class ConversionMaster : MonoBehaviour
         else
         {
             _lastFileFoundOnServer = true;
+        }
+
+        www.Dispose();
+    }
+
+    public IEnumerator UrlExistsWithPHP(string url)
+    {
+        string phpUrl = "http://blackdragonsoftware.be/PHP/FileExists.php?url=" + url;
+
+        UnityWebRequest www = UnityWebRequest.Get(phpUrl);
+        www.certificateHandler = certHandler;
+
+        yield return www.SendWebRequest();
+
+        if (www.isNetworkError || www.isHttpError || www.responseCode > 400)
+        {
+            WriteToLinkImageText("PHP Error: " + www.error);
+        }
+        else
+        {
+            _lastFileFoundOnServer = www.downloadHandler.text == "true";
         }
 
         www.Dispose();
@@ -329,6 +348,7 @@ public class ConversionMaster : MonoBehaviour
             return;
         }
 
+        _markdownPage = page;
         MarkdownPage.text = "Page " + (page + 1) + " / " + (_markdown.Length / MaximumCharactersPerPage + 1);
 
         if (!lastCharOK) // Not enough characters left to show just a part, show all of it
@@ -376,6 +396,7 @@ public class ConversionMaster : MonoBehaviour
             return;
         }
 
+        _htmlPage = page;
         HtmlPage.text = "Page " + (page + 1) + " / " + (_html.Length / MaximumCharactersPerPage + 1);
 
         if (!lastCharOK) // Not enough characters left to show just a part, show all of it

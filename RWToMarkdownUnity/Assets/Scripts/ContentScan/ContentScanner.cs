@@ -111,19 +111,19 @@ namespace DragonMarkdown.ContentScan
                 return;
             }
 
-            var links = Converter.FindAllImageLinksInHtml(html, rootPath);
+            var links = Converter.FindAllImageLinksInHtml(html);
 
             for (var i = 0; i < links.Count; i++)
             {
                 ImageLinkData link = links[i];
 
-                var size = ImageHelper.GetDimensions(link.FullImagePath);
+                var size = ImageHelper.GetDimensions(Path.Combine(rootPath, link.LocalImagePath));
 
                 if (i == 0)
                 {
                     if (size.x != 250 && size.y != 250)
                     {
-                        results.ProblemsFound.Add(link.FullImagePath + ": first image's size isn't 250x250, it's " +
+                        results.ProblemsFound.Add(link.LocalImagePath + ": first image's size isn't 250x250, it's " +
                                                   size.x + "x" + size.y +
                                                   " instead. (not necessary as it will be replaced by the illustrator)");
                     }
@@ -131,7 +131,7 @@ namespace DragonMarkdown.ContentScan
 
                 if (size.x > 700)
                 {
-                    results.ProblemsFound.Add(link.FullImagePath + ": image width larger than 700, it's " + size.x +
+                    results.ProblemsFound.Add(link.LocalImagePath + ": image width larger than 700, it's " + size.x +
                                               "x" + size.y +
                                               ". You'll need to manually edit the size class to 'large' in the HTML after uploading. (a future update to this app will do this for you)");
                 }
