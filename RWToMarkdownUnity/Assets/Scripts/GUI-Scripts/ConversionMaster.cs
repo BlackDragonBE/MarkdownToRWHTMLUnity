@@ -264,7 +264,7 @@ public class ConversionMaster : MonoBehaviour
         }
 
         ImageLinkerCancelButton.SetActive(true);
-        WriteToLinkImageText("Finished operation. HTML has been copied to your clipboard.");
+        WriteToLinkImageText("Finished operation! Both the markdown and HTML have been adjusted. Please don't run linker again until you've opened another markdown file.");
     }
 
     private void WriteToLinkImageText(string text)

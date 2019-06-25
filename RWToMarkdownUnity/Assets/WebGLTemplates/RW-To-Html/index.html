@@ -31,16 +31,16 @@
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Markdown To RWHTML</title>
-    <script src="Build/UnityLoader.js"></script>
+    <script src="%UNITY_WEBGL_LOADER_URL%"></script>
     <script>
-    var unityInstance = UnityLoader.instantiate("unityContainer", "Build/1_WEBGL.json", {onProgress: UnityProgress});
+    var unityInstance = UnityLoader.instantiate("unityContainer", "%UNITY_WEBGL_BUILD_URL%", {onProgress: UnityProgress});
     </script>
   </head>
   
   <body bgcolor="#000000">
   <center>
 	<font face="verdana" color="#959595"><h1>Markdown To RWHTML</h1></font>
-    <div id="unityContainer" style="width: 1280px; height: 720px; margin: auto"></div>
+    <div id="unityContainer" style="width: %UNITY_WIDTH%px; height: %UNITY_HEIGHT%px; margin: auto"></div>
   </center>
   </body>
   
