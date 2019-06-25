@@ -294,7 +294,7 @@ public class ConversionMaster : MonoBehaviour
 
     public IEnumerator UrlExistsWithPHP(string url)
     {
-        string phpUrl = "http://blackdragonsoftware.be/PHP/FileExists.php?url=" + url;
+        string phpUrl = "https://blackdragonsoftware.be/PHP/FileExists.php?url=" + url;
 
         UnityWebRequest www = UnityWebRequest.Get(phpUrl);
         www.certificateHandler = certHandler;
