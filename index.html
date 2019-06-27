@@ -2,6 +2,8 @@
 <html lang="en-us">
   <script>
 	  function UnityProgress(unityInstance, progress) {
+	  var loading = document.getElementById("loadingText");
+	  
 	  if (!unityInstance.Module)
 		return;
 	  if (!unityInstance.logo) {
@@ -22,8 +24,11 @@
 	  }
 	  unityInstance.progress.full.style.width = (100 * progress) + "%";
 	  unityInstance.progress.empty.style.width = (100 * (1 - progress)) + "%";
-	  if (progress == 1)
+	  loading.innerHTML = (100 * progress) + "%";
+	  if (progress == 1){
 		unityInstance.logo.style.display = unityInstance.progress.style.display = "none";
+		loading.style.display ="none";
+		}
 	}
   </script>
 
@@ -39,8 +44,9 @@
   
   <body bgcolor="#000000">
   <center>
-	<font face="verdana" color="#959595"><h1>Markdown To RWHTML</h1></font>
     <div id="unityContainer" style="width: 1280px; height: 720px; margin: auto"></div>
+	<font face="verdana" color="#959595"><h1 id="loadingText">Loading...</h1></font>
+
   </center>
   </body>
   

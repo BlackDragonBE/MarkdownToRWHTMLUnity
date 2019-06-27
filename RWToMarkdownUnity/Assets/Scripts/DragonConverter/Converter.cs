@@ -22,17 +22,18 @@ namespace DragonMarkdown.DragonConverter
             MarkdownPipeline pipeline = new MarkdownPipelineBuilder().UseEmphasisExtras().UseCustomContainers().Build();
 
             string output = Markdown.ToHtml(markdown, pipeline);
-            //Console.WriteLine(output);
 
             // HTML readability improvements & RW specific changes
 
             // Code
             if (!prepareForPreview)
             {
-                output = output.Replace("<pre><code class=", "\r\n<pre lang=");
-                output = output.Replace("lang-", "");
-                output = output.Replace("language-", "");
-                output = output.Replace("</code></pre>", "</pre>\r\n");
+                output = new StringBuilder(output)
+                .Replace("<pre><code class=", "\r\n<pre lang=")
+                .Replace("lang-", "")
+                .Replace("language-", "")
+                .Replace("</code></pre>", "</pre>\r\n")
+                .ToString();
             }
 
             // Add attributes

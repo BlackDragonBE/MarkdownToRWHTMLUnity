@@ -9,8 +9,7 @@ namespace Crosstales.FB
 
         private static Wrapper.IFileBrowser platformWrapper;
 
-        #endregion
-
+        #endregion Variables
 
         #region Constructor
 
@@ -64,8 +63,7 @@ namespace Crosstales.FB
                 Debug.Log(platformWrapper);
         }
 
-        #endregion
-
+        #endregion Constructor
 
         #region Properties
 
@@ -89,8 +87,7 @@ namespace Crosstales.FB
             }
         }
 
-        #endregion
-
+        #endregion Properties
 
         #region Public methods
 
@@ -352,8 +349,7 @@ namespace Crosstales.FB
             return Util.Helper.GetDirectories(path, isRecursive);
         }
 
-        #endregion
-
+        #endregion Public methods
 
         #region Private methods
 
@@ -380,7 +376,7 @@ namespace Crosstales.FB
             return null;
         }
 
-        #endregion
+        #endregion Private methods
     }
 
     /// <summary>Filter for extensions.</summary>
@@ -416,4 +412,5 @@ namespace Crosstales.FB
         }
     }
 }
+
 // © 2017-2019 crosstales LLC (https://www.crosstales.com)
