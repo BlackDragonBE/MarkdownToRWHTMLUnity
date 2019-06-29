@@ -33,6 +33,7 @@
                '    </div>' + 
                '    <div style="margin-top:10px">' + 
                '      <input id="nativeInputDialogOkBtn" type="button" value="OK" onclick="" >' + 
+               '      <input id="nativeInputDialogCopyBtn" type="button" value="Copy to clipboard" onclick="" >' + 
                '      <input id="nativeInputDialogCheck" type="checkBox" style="display:none;">' + 
                '    </div>' + 
                '  </div>' + 
@@ -43,13 +44,23 @@
       document.body.appendChild( element );
 
       // set Event
-      var closeFunction = 
+		var closeFunction = 
         'document.getElementById("nativeInputDialog" ).style.display = "none";';
+
+      var copyFunction = 
+        'var copyText = document.getElementById("nativeInputDialogInput");' +
+		'copyText.select();' +
+		'document.execCommand("copy");' +
+		'alert("Copied the text!");';
+		
 
       var inputField = document.getElementById("nativeInputDialogInput");
       //inputField.setAttribute( "onsubmit" , okFunction );
       var okBtn = document.getElementById("nativeInputDialogOkBtn");
       okBtn.setAttribute( "onclick" , closeFunction);
+      var copyBtn = document.getElementById("nativeInputDialogCopyBtn");
+      copyBtn.setAttribute( "onclick" , copyFunction);
+	  
     }
     document.getElementById("nativeInputDialogTitle").innerText = title;
     document.getElementById("nativeInputDialogInput").value= defaultValue;

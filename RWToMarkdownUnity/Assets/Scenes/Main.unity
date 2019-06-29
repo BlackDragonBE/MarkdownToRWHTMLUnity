@@ -1173,8 +1173,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 19.1}
-  m_SizeDelta: {x: -20, y: -52.2}
+  m_AnchoredPosition: {x: 0, y: -0.41000366}
+  m_SizeDelta: {x: -20, y: -13.17}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &157074524
 MonoBehaviour:
@@ -3537,8 +3537,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -0.0025177002}
-  m_SizeDelta: {x: 0, y: -0.0050049}
+  m_AnchoredPosition: {x: 0, y: -0.000015258789}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &539428273
 MonoBehaviour:
@@ -5262,7 +5262,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_text: Copy HTML below and paste to RW Wordpress
+  m_text: RW Compatible HTML Output
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -5331,10 +5331,10 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_textInfo:
     textComponent: {fileID: 1330050697}
-    characterCount: 41
+    characterCount: 25
     spriteCount: 0
-    spaceCount: 7
-    wordCount: 8
+    spaceCount: 3
+    wordCount: 4
     linkCount: 0
     lineCount: 1
     pageCount: 1
@@ -7343,7 +7343,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1382508744}
   m_HandleRect: {fileID: 1382508743}
   m_Direction: 3
-  m_Value: 0.000005760405
+  m_Value: 0.00000003204955
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -10303,11 +10303,6 @@ PrefabInstance:
       propertyPath: WebGLUploadCanvas
       value: 
       objectReference: {fileID: 562265385531803154}
-    - target: {fileID: 5487498295538939889, guid: c03e44bec6a0ff34d8af21c86f1e0c05,
-        type: 3}
-      propertyPath: m_Name
-      value: ConversionMaster
-      objectReference: {fileID: 0}
     - target: {fileID: 5487498295538939895, guid: c03e44bec6a0ff34d8af21c86f1e0c05,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -10362,6 +10357,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5487498295538939889, guid: c03e44bec6a0ff34d8af21c86f1e0c05,
+        type: 3}
+      propertyPath: m_Name
+      value: ConversionMaster
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c03e44bec6a0ff34d8af21c86f1e0c05, type: 3}
