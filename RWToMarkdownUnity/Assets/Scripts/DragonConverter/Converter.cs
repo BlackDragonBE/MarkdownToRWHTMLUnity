@@ -225,7 +225,20 @@ namespace DragonMarkdown.DragonConverter
             html = doc.DocumentNode.OuterHtml;
         }
 
-        public static List<ImageLinkData> FindAllImageLinksInHtml(string html)
+        public static List<string> FindAllImageLinksInHtml(string html)
+        {
+            List<string> stringList = new List<string>();
+            HtmlDocument htmlDocument = new HtmlDocument();
+            htmlDocument.LoadHtml(html);
+            HtmlNodeCollection htmlNodeCollection = htmlDocument.DocumentNode.SelectNodes("//img");
+            if (htmlNodeCollection == null)
+                return stringList;
+            foreach (HtmlNode htmlNode in htmlNodeCollection)
+                stringList.Add(htmlNode.GetAttributeValue("src", null));
+            return stringList;
+        }
+
+        public static List<ImageLinkData> FindAllLocalImageLinksInHtml(string html)
         {
             List<ImageLinkData> links = new List<ImageLinkData>();
 

@@ -50,7 +50,7 @@ public class ImageLinkerWindow : MonoBehaviour
             yield break;
         }
 
-        var links = Converter.FindAllImageLinksInHtml(ConvMaster.HTML);
+        var links = Converter.FindAllLocalImageLinksInHtml(ConvMaster.HTML);
 
         if (links.Count == 0)
         {

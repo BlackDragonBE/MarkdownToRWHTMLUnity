@@ -1,7 +1,7 @@
 ﻿var WebNativeDialog = {
   NativeDialogPrompt:function (title , defaultValue){
-    defaultValue = Pointer_stringify(defaultValue);
-    title = Pointer_stringify(title);
+    defaultValue = UTF8ToString(defaultValue);
+    title = UTF8ToString(title);
     var result = window.prompt( title , defaultValue );
     if( !result ){
       result = defaultValue;
@@ -11,9 +11,9 @@
     return buffer;
   },
   SetupOverlayDialogHtml:function(title,defaultValue,okBtnText){
-    title = Pointer_stringify(title);
-    defaultValue = Pointer_stringify(defaultValue);
-    okBtnText = Pointer_stringify(okBtnText);
+    title = UTF8ToString(title);
+    defaultValue = UTF8ToString(defaultValue);
+    okBtnText = UTF8ToString(okBtnText);
 
     if( !document.getElementById("nativeInputDialogInput" ) ){
       // setup css

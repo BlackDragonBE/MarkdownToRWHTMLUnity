@@ -1,10 +1,12 @@
-﻿using System;
+﻿using HtmlAgilityPack;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -259,6 +261,16 @@ namespace DragonMarkdown.Utility
         public static string GetFullFilePath(string localFilePath, string rootPath)
         {
             return rootPath + "/" + localFilePath;
+        }
+
+        public static Encoding GetEncoding(string filename)
+        {
+            using (StreamReader streamReader = new StreamReader(filename, Encoding.Default, true))
+            {
+                if (streamReader.Peek() >= 0)
+                    streamReader.Read();
+                return streamReader.CurrentEncoding;
+            }
         }
 
         public static void CopyToClipboard(this string s)

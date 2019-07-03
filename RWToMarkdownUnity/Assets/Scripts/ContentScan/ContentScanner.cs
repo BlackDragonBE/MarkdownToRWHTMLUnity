@@ -111,7 +111,7 @@ namespace DragonMarkdown.ContentScan
                 return;
             }
 
-            var links = Converter.FindAllImageLinksInHtml(html);
+            var links = Converter.FindAllLocalImageLinksInHtml(html);
 
             for (var i = 0; i < links.Count; i++)
             {

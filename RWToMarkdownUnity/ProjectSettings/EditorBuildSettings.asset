@@ -6,6 +6,12 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/Main.unity
+    path: Assets/Scenes/ConverterChooser.unity
+    guid: 614d7b300ff55a748bea309d1cced926
+  - enabled: 1
+    path: Assets/Scenes/MarkdownToHtml.unity
     guid: 2cda990e2423bbf4892e6590ba056729
+  - enabled: 1
+    path: Assets/Scenes/HtmlToMarkdown.unity
+    guid: 9af0ed56c7f59d4499896524c2f400bb
   m_configObjects: {}

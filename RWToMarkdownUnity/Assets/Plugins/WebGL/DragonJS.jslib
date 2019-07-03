@@ -2,8 +2,8 @@
  
 	 openWindow: function(url) 
 	 {
-		url = Pointer_stringify(url);
+		url = UTF8ToString(url);
 		window.open(url, '_blank');
 	 }
-
+	 
  });

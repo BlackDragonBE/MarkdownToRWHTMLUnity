@@ -12,6 +12,7 @@ using UnityEngine.UI;
 using UnityEngine.Networking;
 using System.Runtime.InteropServices;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 
 public class ConversionMaster : MonoBehaviour
 {
@@ -35,6 +36,14 @@ public class ConversionMaster : MonoBehaviour
         UIManager.Instance.SetMarkdownText("");
         UIManager.Instance.SetHtmlText("");
         Application.targetFrameRate = 30;
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            SceneManager.LoadScene("ConverterChooser");
+        }
     }
 
     // VERY EXPERIMENTAL WEBGL STUFF
@@ -124,25 +133,22 @@ public class ConversionMaster : MonoBehaviour
                 MarkdownPath = path;
                 _htmlPath = null;
 
-                using (StreamReader sr = new StreamReader(path))
+                Markdown = File.ReadAllText(path).Replace("\t", "  ");
+                ConvertMarkdownAndFillTextFields(Markdown);
+
+                if (_useContentScanner)
                 {
-                    Markdown = sr.ReadToEnd().Replace("\t", "  ");
-                    ConvertMarkdownAndFillTextFields(Markdown);
-
-                    if (_useContentScanner)
-                    {
-                        print(ContentScanner.ParseScanrResults(ContentScanner.ScanMarkdown(Markdown, MarkdownPath)));
-                    }
-
-                    if (_saveOutputToHtml)
-                    {
-                        _htmlPath = DragonUtil.GetFullPathWithoutExtension(path) + ".html";
-                        Converter.ConvertMarkdownFileToHtmlFile(path, _htmlPath, options);
-                    }
-
-                    UIManager.Instance.HideLoadingScreen();
-                    UIManager.Instance.SetStatusText("Converted markdown! Copy HTML on right side or start Image Linker (experimental).");
+                    print(ContentScanner.ParseScanrResults(ContentScanner.ScanMarkdown(Markdown, MarkdownPath)));
                 }
+
+                if (_saveOutputToHtml)
+                {
+                    _htmlPath = DragonUtil.GetFullPathWithoutExtension(path) + ".html";
+                    Converter.ConvertMarkdownFileToHtmlFile(path, _htmlPath, options);
+                }
+
+                UIManager.Instance.HideLoadingScreen();
+                UIManager.Instance.SetStatusText("Converted markdown! Copy HTML on right side or start Image Linker (experimental).");
             }
         }
         else
