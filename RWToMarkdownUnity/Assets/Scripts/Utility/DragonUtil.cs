@@ -278,10 +278,16 @@ namespace DragonMarkdown.Utility
 #if UNITY_WEBGL && !UNITY_EDITOR
             WebNativeDialog.SetUpOverlayDialog("Select all text below and copy:", s, "Close");
 #else
+
+            GUIStyle style = new GUIStyle();
+            style.richText = false;
+
             TextEditor te = new TextEditor();
+            te.style = style;
             te.text = s;
             te.SelectAll();
             te.Copy();
+
 #endif
         }
     }
