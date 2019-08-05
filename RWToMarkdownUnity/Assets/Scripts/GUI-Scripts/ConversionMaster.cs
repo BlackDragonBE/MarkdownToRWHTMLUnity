@@ -98,6 +98,7 @@ public class ConversionMaster : MonoBehaviour
         UIManager.Instance.SetCopyHtmlTopButtonVisible(true);
         UIManager.Instance.SetPasteHtmlTopButtonVisible(true);
         UIManager.Instance.SetHemingwayButtonVisible(true);
+        UIManager.Instance.SetAnalysisButtonVisible(true);
 
         UIManager.Instance.LoadMarkdownPage(0);
         UIManager.Instance.LoadHtmlPage(0);
@@ -138,7 +139,7 @@ public class ConversionMaster : MonoBehaviour
 
                 if (_useContentScanner)
                 {
-                    print(ContentScanner.ParseScanrResults(ContentScanner.ScanMarkdown(Markdown, MarkdownPath)));
+                    print(ContentScanner.ParseScanrResults(ContentScanner.ScanMarkdown(Markdown)));
                 }
 
                 if (_saveOutputToHtml)
@@ -177,5 +178,17 @@ public class ConversionMaster : MonoBehaviour
     {
         HTML.CopyToClipboard();
         UIManager.Instance.SetStatusText("Copied HTML to clipboard!");
+    }
+
+    public void ShowMarkdownAnalysis()
+    {
+        UIManager.Instance.HideMarkdownToHtmlCanvas();
+        UIManager.Instance.ShowAnalysisCanvas(ContentScanner.ParseScanrResults(ContentScanner.ScanMarkdown(Markdown)));
+    }
+
+    public void CloseAnalysis()
+    {
+        UIManager.Instance.HideAnalysisCanvas();
+        UIManager.Instance.ShowMarkdownToHtmlCanvas();
     }
 }

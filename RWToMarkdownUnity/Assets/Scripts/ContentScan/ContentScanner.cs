@@ -9,21 +9,19 @@ namespace DragonMarkdown.ContentScan
 {
     public class ScanResults
     {
-        public string Filename;
         public List<string> ProblemsFound = new List<string>();
         public int WordCount;
     }
 
     public static class ContentScanner
     {
-        public static ScanResults ScanMarkdown(string markdownText, string markdownPath)
+        public static ScanResults ScanMarkdown(string markdownText)
         {
-            ScanResults results = new ScanResults { Filename = Path.GetFileName(markdownPath) };
+            ScanResults results = new ScanResults();
 
             CountWords(ref results, markdownText);
             ScanSectionTitles(ref results, markdownText);
             ScanSmileys(ref results, markdownText);
-            //ScanImages(ref results, markdownText, markdownPath);
             ScanWords(ref results, markdownText);
 
             return results;
@@ -31,7 +29,7 @@ namespace DragonMarkdown.ContentScan
 
         public static string ParseScanrResults(ScanResults results)
         {
-            string output = "Markdown Report For " + results.Filename + "\n";
+            string output = "Markdown Report" + "\n";
             output += "-------------\n";
             output += "Word Count: " + results.WordCount;
             output += "\n\n";
@@ -47,7 +45,7 @@ namespace DragonMarkdown.ContentScan
 
         private static void CountWords(ref ScanResults results, string text)
         {
-            char[] delimiters = GetDelimiters();
+            char[] delimiters = GetWordDelimiters();
             results.WordCount = text.Split(delimiters, StringSplitOptions.RemoveEmptyEntries).Length;
 
             if (results.WordCount > 4000)
@@ -96,51 +94,9 @@ namespace DragonMarkdown.ContentScan
             }
         }
 
-        // Not needed anymore
-        private static void ScanImages(ref ScanResults results, string markdownText, string markdownPath)
-        {
-            string html = Converter.ConvertMarkdownStringToHtml(markdownText);
-            string rootPath = Path.GetDirectoryName(markdownPath);
-
-            HtmlDocument doc = new HtmlDocument();
-            doc.LoadHtml(html);
-            HtmlNodeCollection imgNodes = doc.DocumentNode.SelectNodes("//img[@src]");
-
-            if (imgNodes == null || imgNodes.Count == 0)
-            {
-                return;
-            }
-
-            var links = Converter.FindAllLocalImageLinksInHtml(html);
-
-            for (var i = 0; i < links.Count; i++)
-            {
-                ImageLinkData link = links[i];
-
-                var size = ImageHelper.GetDimensions(Path.Combine(rootPath, link.LocalImagePath));
-
-                if (i == 0)
-                {
-                    if (size.x != 250 && size.y != 250)
-                    {
-                        results.ProblemsFound.Add(link.LocalImagePath + ": first image's size isn't 250x250, it's " +
-                                                  size.x + "x" + size.y +
-                                                  " instead. (not necessary as it will be replaced by the illustrator)");
-                    }
-                }
-
-                if (size.x > 700)
-                {
-                    results.ProblemsFound.Add(link.LocalImagePath + ": image width larger than 700, it's " + size.x +
-                                              "x" + size.y +
-                                              ". You'll need to manually edit the size class to 'large' in the HTML after uploading. (a future update to this app will do this for you)");
-                }
-            }
-        }
-
         private static void ScanWords(ref ScanResults results, string markdownText)
         {
-            char[] delimiters = GetDelimiters();
+            char[] delimiters = GetWordDelimiters();
             string[] words = markdownText.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
 
             Dictionary<string, string> britshAmericanWordsDict = CreateBritishWordDict();
@@ -164,7 +120,7 @@ namespace DragonMarkdown.ContentScan
             }
         }
 
-        private static char[] GetDelimiters()
+        private static char[] GetWordDelimiters()
         {
             return new[]
             {
@@ -302,6 +258,10 @@ namespace DragonMarkdown.ContentScan
                 {"we", "you"},
                 {"we'll", "you'll"},
                 {"let's", "time to / something else"},
+                {"rightclick", "right-click"},
+                {"leftclick", "left-click"},
+                {"middleclick", "middle-click"},
+                {"MacOS", "macOS"},
             };
 
             return wordDict;

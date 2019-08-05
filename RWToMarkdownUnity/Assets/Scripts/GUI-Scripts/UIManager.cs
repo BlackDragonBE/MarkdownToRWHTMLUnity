@@ -19,6 +19,8 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI HtmlPage;
 
     public GameObject LoadingCanvas;
+    public GameObject MarkdownToHtmlCanvas;
+    public GameObject AnalysisCanvas;
     public GameObject WebGLUploadCanvas;
 
     public GameObject MarkdownGroup;
@@ -28,6 +30,7 @@ public class UIManager : MonoBehaviour
     public GameObject CopyHtmlTopButton;
     public GameObject PasteHtmlTopButton;
     public GameObject HemingwayButton;
+    public GameObject AnalysisButton;
 
     public int MaximumCharactersPerPage = 1000;
 
@@ -47,6 +50,7 @@ public class UIManager : MonoBehaviour
         SetCopyHtmlTopButtonVisible(false);
         SetPasteHtmlTopButtonVisible(false);
         SetHemingwayButtonVisible(false);
+        SetAnalysisButtonVisible(false);
     }
 
     public void SetImageLinkButtonVisible(bool visible)
@@ -77,6 +81,11 @@ public class UIManager : MonoBehaviour
     public void SetHemingwayButtonVisible(bool visible)
     {
         HemingwayButton.SetActive(visible);
+    }
+
+    public void SetAnalysisButtonVisible(bool visible)
+    {
+        AnalysisButton.SetActive(visible);
     }
 
     public void SetMarkdownText(string text)
@@ -213,5 +222,27 @@ public class UIManager : MonoBehaviour
         {
             HtmlText.text = ConvMaster.HTML.Substring(firstCharIndex, MaximumCharactersPerPage);
         }
+    }
+
+    public void ShowMarkdownToHtmlCanvas()
+    {
+        MarkdownToHtmlCanvas.SetActive(true);
+    }
+
+    public void HideMarkdownToHtmlCanvas()
+    {
+        MarkdownToHtmlCanvas.SetActive(false);
+    }
+
+    public void ShowAnalysisCanvas(string text)
+    {
+        AnalysisCanvas.SetActive(true);
+        AnalysisCanvas.GetComponent<MarkdownAnalysisCanvas>().SetText(text);
+    }
+
+    public void HideAnalysisCanvas()
+    {
+        AnalysisCanvas.SetActive(false);
+        AnalysisCanvas.GetComponent<MarkdownAnalysisCanvas>().SetText("");
     }
 }
