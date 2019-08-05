@@ -262,6 +262,7 @@ namespace DragonMarkdown.ContentScan
                 {"leftclick", "left-click"},
                 {"middleclick", "middle-click"},
                 {"MacOS", "macOS"},
+                {"OSX", "macOS"},
             };
 
             return wordDict;
