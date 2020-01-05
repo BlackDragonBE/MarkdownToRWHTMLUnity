@@ -42,8 +42,13 @@ public class ConversionMaster : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            SceneManager.LoadScene("ConverterChooser");
+            CloseConversion();
         }
+    }
+
+    public void CloseConversion()
+    {
+        SceneManager.LoadScene("ConverterChooser");
     }
 
     // VERY EXPERIMENTAL WEBGL STUFF

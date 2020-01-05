@@ -44,8 +44,13 @@ public class HtmlToMarkdownMaster : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            SceneManager.LoadScene("ConverterChooser");
+            CloseConverter();
         }
+    }
+
+    public void CloseConverter()
+    {
+        SceneManager.LoadScene("ConverterChooser");
     }
 
     private IEnumerator OutputRoutine(string url)
