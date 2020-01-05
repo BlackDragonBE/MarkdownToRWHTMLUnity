@@ -4,7 +4,7 @@
 
 Useful cross platform + web tool to convert any markdown document to Ray Wenderlich WordPress ready HTML and back!
 
-![https://blackdragonbe.github.io/MarkdownToRWHTMLUnity](images/1.png)
+[![](images/1.png)](https://blackdragonbe.github.io/MarkdownToRWHTMLUnity)
 
 ## Features
 
