@@ -1,4 +1,4 @@
-<a href="https://www.paypal.com/paypalme2/blackdragonbe" target="_blank">Click here if you want to donate!</a> Don't feel like like you have to though, I create these tools for fun. :]
+<a href="https://www.paypal.com/paypalme/blackdragonbe" target="_blank">Click here if you want to donate!</a> Don't feel like like you have to though, I create these tools for fun. :]
 
 # Markdown To RWHTML Unity Version
 
