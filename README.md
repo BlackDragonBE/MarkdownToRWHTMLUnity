@@ -25,7 +25,9 @@ Link: https://blackdragonbe.github.io/MarkdownToRWHTMLUnity
 
 - Works in any modern desktop browser supporting HTML5 & WebAssembly, no need to install anything!
 - Almost 100% functional compared to Standalone version
-- Not working in Web Version: RWHTML Image Downloader
+- Not working in Web Version:  
+  - RWHTML Image Downloader
+  - Fully setting up captions (impossible to read local image data via WebGL)  
 
 ### Standalone Version
 
