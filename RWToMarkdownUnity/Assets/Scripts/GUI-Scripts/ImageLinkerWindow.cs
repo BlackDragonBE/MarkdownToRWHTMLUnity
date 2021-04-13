@@ -87,7 +87,11 @@ public class ImageLinkerWindow : MonoBehaviour
         for (int i = 0; i < fileNames.Count; i++)
         {
             string potentialUrl = imageUrlPrefix + fileNames[i];
-            _linksDictionary.Add(potentialUrl, false);
+
+            if (!_linksDictionary.ContainsKey(potentialUrl))
+            {
+                _linksDictionary.Add(potentialUrl, false);
+            }
 
 #if UNITY_WEBGL && !UNITY_EDITOR
             StartCoroutine(UrlExistsWithPHP(potentialUrl));

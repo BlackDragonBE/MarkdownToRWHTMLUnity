@@ -80,15 +80,16 @@ public class ConversionMaster : MonoBehaviour
             }
             else
             {
-                ConvertMarkdownAndFillTextFields(www.downloadHandler.text);
+                ConvertMarkdownAndFillTextFields(www.downloadHandler.text, null);
             }
         }
 
         UIManager.Instance.HideLoadingScreen();
     }
 
-    private void ConvertMarkdownAndFillTextFields(string markdown)
+    private void ConvertMarkdownAndFillTextFields(string markdown, string path)
     {
+        Debug.Log(path);
         if (markdown.Length == 0)
         {
             return;
@@ -96,7 +97,7 @@ public class ConversionMaster : MonoBehaviour
 
         Markdown = markdown;
         ConverterOptions options = GetConverterOptions();
-        HTML = Converter.ConvertMarkdownStringToHtml(Markdown, options);
+        HTML = Converter.ConvertMarkdownStringToHtml(Markdown, options, path);
         UIManager.Instance.SetImageLinkButtonVisible(true);
         UIManager.Instance.SetMarkdownGroupVisible(true);
         UIManager.Instance.SetHtmlGroupVisible(true);
@@ -121,6 +122,7 @@ public class ConversionMaster : MonoBehaviour
 
         if (File.Exists(path))
         {
+            UIManager.Instance.HideConverterOptionsWindow();
             UIManager.Instance.ShowLoadingScreen();
             Convert(path);
         }
@@ -140,7 +142,7 @@ public class ConversionMaster : MonoBehaviour
                 _htmlPath = null;
 
                 Markdown = File.ReadAllText(path).Replace("\t", "  ");
-                ConvertMarkdownAndFillTextFields(Markdown);
+                ConvertMarkdownAndFillTextFields(Markdown, path);
 
                 if (_useContentScanner)
                 {
@@ -168,8 +170,8 @@ public class ConversionMaster : MonoBehaviour
     {
         return new ConverterOptions
         {
-            FirstImageIsAlignedRight = false,
-            ReplaceImageWithAltWithCaption = true
+            FirstImageIsAlignedRight = UIManager.Instance.ToggleFirstImageAlignedRight.isOn,
+            AddBordersToImages = UIManager.Instance.ToggleBorderedImages.isOn
         };
     }
 

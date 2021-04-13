@@ -1,11 +1,11 @@
-﻿using System;
+﻿using DragonMarkdown.Utility;
+using HtmlAgilityPack;
+using Markdig;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
-using DragonMarkdown.Utility;
-using HtmlAgilityPack;
-using Markdig;
 
 namespace DragonMarkdown.DragonConverter
 {
@@ -16,6 +16,11 @@ namespace DragonMarkdown.DragonConverter
             if (options == null)
             {
                 options = new ConverterOptions();
+            }
+
+            if (rootPath != null)
+            {
+                rootPath = Path.GetDirectoryName(rootPath);
             }
 
             //MarkdownPipeline pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
@@ -37,7 +42,7 @@ namespace DragonMarkdown.DragonConverter
             }
 
             // Add attributes
-            AddClassToImages(ref output, options.FirstImageIsAlignedRight, rootPath);
+            AdjustImages(ref output, options, rootPath);
 
             AddExtraAttributesToLinks(ref output);
 
@@ -51,6 +56,8 @@ namespace DragonMarkdown.DragonConverter
             .Replace("<h2", "\n<h2")
             .Replace("<h3", "\n<h3")
             .Replace("<h4", "\n<h4")
+            .Replace("<h5", "\n<h5")
+            .Replace("<h6", "\n<h6")
             .Replace("<em>", "<i>")
             .Replace("</em>", "</i>")
             .Replace("<strong>", "<em>")
@@ -64,9 +71,9 @@ namespace DragonMarkdown.DragonConverter
             // Spoiler
             ConvertSpoilers(ref output);
 
-            if (options.ReplaceImageWithAltWithCaption && !prepareForPreview)
+            if (!prepareForPreview)
             {
-                ConvertImagesWithAltToCaptions(ref output);
+                AddCaptionsToImages(ref output);
             }
 
             // Final cleanup
@@ -94,7 +101,7 @@ namespace DragonMarkdown.DragonConverter
             }
         }
 
-        private static void AddClassToImages(ref string html, bool firstImageRightAligned, string rootPath = null)
+        private static void AdjustImages(ref string html, ConverterOptions options, string rootPath = null)
         {
             HtmlDocument doc = new HtmlDocument();
             doc.LoadHtml(html);
@@ -123,9 +130,15 @@ namespace DragonMarkdown.DragonConverter
                     {
                         size = "full";
                     }
+
+                    HtmlAttribute width = doc.CreateAttribute("width", imageSize.x.ToString());
+                    node.Attributes.Add(width);
+
+                    HtmlAttribute height = doc.CreateAttribute("height", imageSize.y.ToString());
+                    node.Attributes.Add(height);
                 }
 
-                if (i == 0 && firstImageRightAligned) // First image should be right aligned, it's the 250x250 image
+                if (i == 0 && options.FirstImageIsAlignedRight) // First image should be right aligned, it's the 250x250 image
                 {
                     HtmlAttribute classAttribute = doc.CreateAttribute("class", "alignright size-" + size);
                     node.Attributes.Add(classAttribute);
@@ -134,6 +147,13 @@ namespace DragonMarkdown.DragonConverter
                 {
                     HtmlAttribute classAttribute = doc.CreateAttribute("class", "aligncenter size-" + size);
                     node.Attributes.Add(classAttribute);
+                }
+
+                if (options.AddBordersToImages)
+                {
+                    //HtmlAttribute attr = doc.CreateAttribute("bordered");
+                    //node.Attributes.Add(attr);
+                    node.Attributes["class"].Value += " bordered";
                 }
             }
 
@@ -165,7 +185,7 @@ namespace DragonMarkdown.DragonConverter
             html = doc.DocumentNode.OuterHtml;
         }
 
-        private static void ConvertImagesWithAltToCaptions(ref string html)
+        private static void AddCaptionsToImages(ref string html)
         {
             HtmlDocument doc = new HtmlDocument();
             doc.LoadHtml(html);
@@ -179,15 +199,33 @@ namespace DragonMarkdown.DragonConverter
             for (int i = 0; i < imgNodes.Count; i++)
             {
                 HtmlNode imgNode = imgNodes[i];
-                if (imgNode.Attributes["alt"] != null && imgNode.Attributes["alt"].Value != "")
+                if (imgNode.Attributes["alt"] != null && imgNode.Attributes["alt"].Value != "" && imgNode.Attributes["alt"].Value.Contains("|"))
                 {
                     HtmlNode parent = imgNode.ParentNode;
 
                     HtmlDocument newDoc = new HtmlDocument();
                     HtmlNode newElement = newDoc.CreateElement("caption");
-                    newElement.SetAttributeValue("align", imgNode.Attributes["class"].Value);
+                    //newElement.SetAttributeValue("align", imgNode.Attributes["class"].Value);
+                    newElement.SetAttributeValue("id", "attachment_" + i);
+                    newElement.SetAttributeValue("align", "aligncenter");
+
+                    if (int.Parse(imgNode.Attributes["width"].Value) <= 638)
+                    {
+                        newElement.SetAttributeValue("width", imgNode.Attributes["width"].Value);
+                    }
+                    else
+                    {
+                        newElement.SetAttributeValue("width", "638");
+                    }
+
+                    string alt = imgNode.Attributes["alt"].Value.Split('|')[0];
+                    string caption = imgNode.Attributes["alt"].Value.Split('|')[1];
+
+                    imgNode.SetAttributeValue("alt", alt);
+
+                    //newElement.SetAttributeValue("width", "aligncenter");
                     newElement.AppendChild(imgNode);
-                    newElement.InnerHtml += imgNode.Attributes["alt"].Value;
+                    newElement.InnerHtml += caption;
 
                     parent.ReplaceChild(newElement, imgNode);
 

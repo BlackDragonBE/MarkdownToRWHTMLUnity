@@ -23,6 +23,8 @@ public class UIManager : MonoBehaviour
     public GameObject AnalysisCanvas;
     public GameObject WebGLUploadCanvas;
 
+    public GameObject ConverterOptionsWindow;
+
     public GameObject MarkdownGroup;
     public GameObject HtmlGroup;
 
@@ -31,6 +33,9 @@ public class UIManager : MonoBehaviour
     public GameObject PasteHtmlTopButton;
     public GameObject HemingwayButton;
     public GameObject AnalysisButton;
+
+    public Toggle ToggleFirstImageAlignedRight;
+    public Toggle ToggleBorderedImages;
 
     public int MaximumCharactersPerPage = 1000;
 
@@ -43,6 +48,11 @@ public class UIManager : MonoBehaviour
     }
 
     private void Start()
+    {
+        HideAllExceptFirstStep();
+    }
+
+    private void HideAllExceptFirstStep()
     {
         SetImageLinkButtonVisible(false);
         SetMarkdownGroupVisible(false);
@@ -244,5 +254,16 @@ public class UIManager : MonoBehaviour
     {
         AnalysisCanvas.SetActive(false);
         AnalysisCanvas.GetComponent<MarkdownAnalysisCanvas>().SetText("");
+    }
+
+    public void ShowConverterOptionsWindow()
+    {
+        HideAllExceptFirstStep();
+        ConverterOptionsWindow.SetActive(true);
+    }
+
+    public void HideConverterOptionsWindow()
+    {
+        ConverterOptionsWindow.SetActive(false);
     }
 }

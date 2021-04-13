@@ -8,6 +8,7 @@ public class MarkdownAnalysisCanvas : MonoBehaviour
 
     public void SetText(string text)
     {
-        AnalysisConsoleText.text = text;
+        //AnalysisConsoleText.text = text;
+        AnalysisConsoleText.SetText(text);
     }
 }

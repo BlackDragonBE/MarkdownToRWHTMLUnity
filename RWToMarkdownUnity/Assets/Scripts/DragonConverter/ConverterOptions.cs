@@ -1,15 +1,15 @@
 ﻿public class ConverterOptions
 {
-    public bool FirstImageIsAlignedRight = true;
-    public bool ReplaceImageWithAltWithCaption = true;
+    public bool FirstImageIsAlignedRight = false;
+    public bool AddBordersToImages = true;
 
     public ConverterOptions()
     {
     }
 
-    public ConverterOptions(bool rightAlignFirstImage = true, bool replaceImageWithAlt = true)
+    public ConverterOptions(bool rightAlignFirstImage = true, bool addBordersToImages = true)
     {
         FirstImageIsAlignedRight = rightAlignFirstImage;
-        ReplaceImageWithAltWithCaption = replaceImageWithAlt;
+        AddBordersToImages = addBordersToImages;
     }
 }

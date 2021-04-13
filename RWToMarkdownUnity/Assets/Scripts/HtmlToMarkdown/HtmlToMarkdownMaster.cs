@@ -11,6 +11,7 @@ using System.Text;
 using System.Net;
 using UnityEngine.SceneManagement;
 using System.Runtime.InteropServices;
+using HtmlAgilityPack;
 
 public class HtmlToMarkdownMaster : MonoBehaviour
 {
@@ -116,6 +117,10 @@ public class HtmlToMarkdownMaster : MonoBehaviour
         .Replace("<em", "<b")
         .Replace("</em", "</b")
         .Replace("’", "'")
+        .Replace("[caption", "<caption")
+        //.Replace("[/caption]", "")
+        .Replace("[/caption]", "</caption>")
+        .Replace("]<img", "><img")
         .ToString();
 
         if (htmlText.Contains("�"))
@@ -123,11 +128,31 @@ public class HtmlToMarkdownMaster : MonoBehaviour
             //ColoredConsole.WriteLineWithColor("- Broken symbol found, this file isn't encoded using UTF-8 and doesn't contain a BOM. Some characters may be incorrect.", ConsoleColor.Red);
             htmlText = htmlText.Replace("�", "'");
         }
-        if (htmlText.Contains("[caption"))
+
+        htmlText = ConvertCaptionsToMarkdown(htmlText);
+
+        return htmlText;
+    }
+
+    private static string ConvertCaptionsToMarkdown(string htmlText)
+    {
+        HtmlDocument doc = new HtmlDocument();
+        doc.LoadHtml(htmlText);
+
+        foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//caption"))
         {
-            //ColoredConsole.WriteLineWithColor("- Caption(s) found. These can't be converted yet.", ConsoleColor.Red);
+            string captionText = node.InnerText;
+            string imgAlt = node.FirstChild.Attributes["alt"].Value;
+
+
+            node.FirstChild.SetAttributeValue("alt", imgAlt + "|" + captionText);
+
+            node.InnerHtml = node.InnerHtml.Replace("\">" + captionText, ">");
+
+            node.RemoveButKeepChildren();
         }
 
+        htmlText = doc.DocumentNode.OuterHtml;
         return htmlText;
     }
 
@@ -139,6 +164,10 @@ public class HtmlToMarkdownMaster : MonoBehaviour
         .Replace("<code lang=\"csharp\">", "```csharp")
         .Replace("<code lang=\"cs\">", "```cs\r\n")
         .Replace("</code>", "```\r\n")
+        .Replace("<del>","~~")
+        .Replace("</del>","~~")
+        .Replace("</del>","~~")
+
         .ToString();
 
         markdown = FixBrokenCode(markdown);

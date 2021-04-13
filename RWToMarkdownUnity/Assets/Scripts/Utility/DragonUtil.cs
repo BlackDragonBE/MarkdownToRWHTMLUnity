@@ -52,7 +52,7 @@ namespace DragonMarkdown.Utility
         {
             string newText = text;
 
-            for (var i = 0; i < originals.Count; i++)
+            for (var i = 0; i < replacements.Count; i++)
             {
                 string original = originals[i];
                 string replacement = replacements[i];
