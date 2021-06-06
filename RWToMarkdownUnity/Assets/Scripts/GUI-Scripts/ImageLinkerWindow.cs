@@ -164,7 +164,7 @@ null, ConvMaster.HTML, true, localImagePaths, imageUrls);
 
         yield return www.SendWebRequest();
 
-        if (www.isNetworkError || www.isHttpError || www.responseCode > 400)
+        if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError || www.responseCode > 400)
         {
             //WriteToLinkConsole("Error: " + www.error);
             _linksDictionary[url] = false;
@@ -196,7 +196,7 @@ null, ConvMaster.HTML, true, localImagePaths, imageUrls);
 
         yield return www.SendWebRequest();
 
-        if (www.isNetworkError || www.isHttpError || www.responseCode > 400)
+        if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError || www.responseCode > 400)
         {
             WriteToLinkConsole("PHP Error: " + www.error);
         }

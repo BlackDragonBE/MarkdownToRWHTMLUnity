@@ -62,7 +62,7 @@ public class HtmlToMarkdownMaster : MonoBehaviour
         {
             yield return www.SendWebRequest();
 
-            if (www.isNetworkError || www.isHttpError)
+            if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError)
             {
                 // Show error status
             }
@@ -144,7 +144,6 @@ public class HtmlToMarkdownMaster : MonoBehaviour
             string captionText = node.InnerText;
             string imgAlt = node.FirstChild.Attributes["alt"].Value;
 
-
             node.FirstChild.SetAttributeValue("alt", imgAlt + "|" + captionText);
 
             node.InnerHtml = node.InnerHtml.Replace("\">" + captionText, ">");
@@ -164,9 +163,9 @@ public class HtmlToMarkdownMaster : MonoBehaviour
         .Replace("<code lang=\"csharp\">", "```csharp")
         .Replace("<code lang=\"cs\">", "```cs\r\n")
         .Replace("</code>", "```\r\n")
-        .Replace("<del>","~~")
-        .Replace("</del>","~~")
-        .Replace("</del>","~~")
+        .Replace("<del>", "~~")
+        .Replace("</del>", "~~")
+        .Replace("</del>", "~~")
 
         .ToString();
 

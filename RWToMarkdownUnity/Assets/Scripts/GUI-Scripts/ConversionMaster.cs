@@ -74,7 +74,7 @@ public class ConversionMaster : MonoBehaviour
         {
             yield return www.SendWebRequest();
 
-            if (www.isNetworkError || www.isHttpError)
+            if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError)
             {
                 UIManager.Instance.SetStatusText(www.error);
             }

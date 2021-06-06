@@ -94,7 +94,7 @@ public class ImageDownloadWindow : MonoBehaviour
 
         yield return uwr.SendWebRequest();
 
-        if (uwr.isNetworkError || uwr.isHttpError)
+        if (uwr.result == UnityWebRequest.Result.ConnectionError || uwr.result == UnityWebRequest.Result.ProtocolError)
         {
             WriteToLinkConsole("ERROR " + fileUrl + " :" + uwr.error);
             _downloadDictionary[fileUrl] = false;
