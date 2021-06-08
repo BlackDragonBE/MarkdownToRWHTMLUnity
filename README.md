@@ -39,6 +39,5 @@ Link: https://github.com/BlackDragonBE/MarkdownToRWHTMLUnity/releases/latest
 
 ## Known Issues
 
-- The RWHTML to Markdown converter can't convert captions
 - The Image Downloader doesn't have a similar feature in the WebGL version
 - The interface is a bit messy
