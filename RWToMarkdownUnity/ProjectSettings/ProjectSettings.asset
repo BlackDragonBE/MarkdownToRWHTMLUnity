@@ -602,7 +602,8 @@ PlayerSettings:
     33: CT_FB
   additionalCompilerArguments: {}
   platformArchitecture: {}
-  scriptingBackend: {}
+  scriptingBackend:
+    Standalone: 1
   il2cppCompilerConfiguration: {}
   managedStrippingLevel:
     Standalone: 1
