@@ -1,6 +1,11 @@
-<a href="https://www.paypal.com/paypalme/blackdragonbe" target="_blank">Click here if you want to donate!</a> Don't feel like like you have to though, I create these tools for fun. :]
+## ⚠️ Deprecation Warning ⚠️
+
+This converter is deprecated. It won't work correctly with Kodeco.
+Please use the new (and final) web version instead that's tailored for Kodeco and has more features: <a href="https://blackdragonbe.github.io/kodeco-web-toolbox">https://blackdragonbe.github.io/kodeco-web-toolbox</a>
 
 # Markdown To RWHTML Unity Version
+
+<a href="https://www.paypal.com/paypalme/blackdragonbe" target="_blank">Click here if you want to donate!</a> Don't feel like like you have to though, I create these tools for fun. :]
 
 Useful cross platform + web tool to convert any markdown document to Ray Wenderlich WordPress ready HTML and back!
 
